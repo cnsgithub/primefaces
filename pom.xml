@@ -198,7 +198,7 @@
             <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
             <artifactId>owasp-java-html-sanitizer</artifactId>
             <version>20171016.1</version>
-        </dependency>
+        </dependency>        
     </dependencies>
 
     <build>
@@ -366,10 +366,10 @@
                 <configuration>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <nonFilteredFileExtensions>
-                        <nonFilteredFileExtension>eot</nonFilteredFileExtension>
-                        <nonFilteredFileExtension>ttf</nonFilteredFileExtension>
-                        <nonFilteredFileExtension>woff</nonFilteredFileExtension>
-                        <nonFilteredFileExtension>woff2</nonFilteredFileExtension>
+                       <nonFilteredFileExtension>eot</nonFilteredFileExtension>
+                       <nonFilteredFileExtension>ttf</nonFilteredFileExtension>
+                       <nonFilteredFileExtension>woff</nonFilteredFileExtension>
+                       <nonFilteredFileExtension>woff2</nonFilteredFileExtension>
                     </nonFilteredFileExtensions>
                 </configuration>
             </plugin>
