@@ -16,16 +16,12 @@
 package org.primefaces.renderkit;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.RandomAccess;
+import java.util.*;
 
 import javax.el.ELException;
 import javax.el.ExpressionFactory;
 import javax.el.ValueExpression;
+import javax.faces.FacesException;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.component.UISelectItem;
@@ -198,7 +194,7 @@ public class SelectRenderer extends InputRenderer {
 
         return null;
     }
-    
+
     protected Object coerceToModelType(FacesContext ctx, Object value, Class itemValueType) {
         Object newValue;
         try {
@@ -286,4 +282,37 @@ public class SelectRenderer extends InputRenderer {
         }
         return count;
     }
+
+    /**
+     * Restores checked, disabled select items (#3296) and checks if at least one disabled select item has been submitted -
+     * this may occur with client side manipulation (#3264)
+     * @return <code>newSubmittedValues</code> merged with checked, disabled <code>oldValues</code>
+     * @throws javax.faces.FacesException if client side manipulation has been detected, in order to reject the submission
+     */
+    protected String[] restoreAndCheckDisabledSelectItems(FacesContext context, UIInput component, Object[] oldValues, String... newSubmittedValues)
+            throws FacesException {
+        List<String> restoredSubmittedValues = new ArrayList<String>();
+        String msg = "Disabled select item has been submitted";
+        List<Object> oldVals = oldValues == null ? Collections.emptyList() : Arrays.asList(oldValues);
+        List<String> newSubmittedValsStr = newSubmittedValues == null ? Collections.<String>emptyList() : Arrays.asList(newSubmittedValues);
+        for (SelectItem selectItem : getSelectItems(context, component)) {
+            String selectItemValStr = getOptionAsString(context, component, component.getConverter(), selectItem.getValue());
+            if (selectItem.isDisabled()) {
+                if (newSubmittedValsStr.contains(selectItemValStr) && !oldVals.contains(selectItemValStr)) {
+                    // disabled select item has been selected
+                    throw new FacesException(msg);
+                }
+                if (oldVals.contains(selectItemValStr)) {
+                    restoredSubmittedValues.add(selectItemValStr);
+                }
+            }
+            else {
+                if (newSubmittedValsStr.contains(selectItemValStr)) {
+                    restoredSubmittedValues.add(selectItemValStr);
+                }
+            }
+        }
+        return restoredSubmittedValues.toArray(new String[restoredSubmittedValues.size()]);
+    }
+
 }
