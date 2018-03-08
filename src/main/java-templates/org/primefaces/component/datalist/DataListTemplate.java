@@ -6,9 +6,7 @@ import javax.faces.event.BehaviorEvent;
 import javax.faces.event.FacesEvent;
 import javax.faces.event.FacesListener;
 import javax.faces.model.DataModel;
-import org.primefaces.context.RequestContext;
 import org.primefaces.model.LazyDataModel;
-import org.primefaces.mobile.event.SwipeEvent;
 import org.primefaces.event.SelectEvent;
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,12 +31,8 @@ import org.primefaces.PrimeFaces;
     public static final String FOOTER_CLASS = "ui-datalist-footer ui-widget-header ui-corner-bottom";
 	public static final String DATALIST_EMPTYMESSAGE_CLASS = "ui-datalist-empty-message";
 
-    public static final String MOBILE_CONTENT_CLASS = "ui-datalist-content";
-
     private static final Map<String, Class<? extends BehaviorEvent>> BEHAVIOR_EVENT_MAPPING = Collections.unmodifiableMap(new HashMap<String, Class<? extends BehaviorEvent>>() {{
         put("page", PageEvent.class);
-        put("swipeleft", SwipeEvent.class);
-        put("swiperight", SwipeEvent.class);
         put("tap", SelectEvent.class);
         put("taphold", SelectEvent.class);
     }});
@@ -112,17 +106,6 @@ import org.primefaces.PrimeFaces;
                 pageEvent.setPhaseId(behaviorEvent.getPhaseId());
 
                 super.queueEvent(pageEvent);
-            }
-            else if(eventName.equals("swipeleft")||eventName.equals("swiperight")) {
-                String clientId = this.getClientId(context);
-                int index = Integer.parseInt(params.get(clientId + "_item"));
-                this.setRowIndex(index);
-        
-                SwipeEvent swipeEvent = new SwipeEvent(this, behaviorEvent.getBehavior(), this.getRowData());
-                swipeEvent.setPhaseId(behaviorEvent.getPhaseId());
-
-                this.setRowIndex(-1);
-                super.queueEvent(swipeEvent);
             }
             else if(eventName.equals("tap")||eventName.equals("taphold")) {
                 String clientId = this.getClientId(context);

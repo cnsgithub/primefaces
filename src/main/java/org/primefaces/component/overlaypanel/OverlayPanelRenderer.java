@@ -68,7 +68,7 @@ public class OverlayPanelRenderer extends CoreRenderer {
         String clientId = panel.getClientId(context);
 
         WidgetBuilder wb = getWidgetBuilder(context);
-        wb.initWithDomReady("OverlayPanel", panel.resolveWidgetVar(), clientId)
+        wb.init("OverlayPanel", panel.resolveWidgetVar(), clientId)
                 .attr("target", target)
                 .attr("showEvent", panel.getShowEvent(), null)
                 .attr("hideEvent", panel.getHideEvent(), null)
@@ -78,7 +78,7 @@ public class OverlayPanelRenderer extends CoreRenderer {
                 .callback("onHide", "function()", panel.getOnHide())
                 .attr("my", panel.getMy(), null)
                 .attr("at", panel.getAt(), null)
-                .attr("appendToBody", panel.isAppendToBody(), false)
+                .attr("appendTo", panel.getAppendTo(), null)
                 .attr("dynamic", panel.isDynamic(), false)
                 .attr("dismissable", panel.isDismissable(), true)
                 .attr("showCloseIcon", panel.isShowCloseIcon(), false)

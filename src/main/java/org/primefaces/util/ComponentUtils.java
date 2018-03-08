@@ -32,16 +32,22 @@ import javax.faces.FacesWrapper;
 import javax.faces.application.ConfigurableNavigationHandler;
 import javax.faces.application.NavigationCase;
 import javax.faces.application.ResourceHandler;
-import javax.faces.component.*;
+import javax.faces.component.EditableValueHolder;
+import javax.faces.component.UIComponent;
+import javax.faces.component.UINamingContainer;
+import javax.faces.component.UIParameter;
+import javax.faces.component.ValueHolder;
 import javax.faces.component.visit.VisitContext;
 import javax.faces.component.visit.VisitHint;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.render.Renderer;
+
 import org.primefaces.component.api.RTLAware;
 import org.primefaces.component.api.Widget;
 import org.primefaces.config.PrimeConfiguration;
-import org.primefaces.context.RequestContext;
+import org.primefaces.context.PrimeApplicationContext;
+import org.primefaces.context.PrimeRequestContext;
 import org.primefaces.expression.SearchExpressionUtils;
 
 public class ComponentUtils {
@@ -78,7 +84,7 @@ public class ComponentUtils {
             if (component instanceof EditableValueHolder) {
                 EditableValueHolder input = (EditableValueHolder) component;
                 Object submittedValue = input.getSubmittedValue();
-                PrimeConfiguration config = RequestContext.getCurrentInstance(context).getApplicationContext().getConfig();
+                PrimeConfiguration config = PrimeApplicationContext.getCurrentInstance(context).getConfig();
 
                 if (config.isInterpretEmptyStringAsNull()
                         && submittedValue == null
@@ -103,7 +109,7 @@ public class ComponentUtils {
                 if (converter == null) {
                     Class valueType = value.getClass();
                     if (valueType == String.class
-                            && !RequestContext.getCurrentInstance(context).getApplicationContext().getConfig().isStringConverterAvailable()) {
+                            && !PrimeApplicationContext.getCurrentInstance(context).getConfig().isStringConverterAvailable()) {
                         return (String) value;
                     }
 
@@ -156,7 +162,7 @@ public class ComponentUtils {
         }
 
         if (converterType == String.class
-                && !RequestContext.getCurrentInstance(context).getApplicationContext().getConfig().isStringConverterAvailable()) {
+                && !PrimeApplicationContext.getCurrentInstance(context).getConfig().isStringConverterAvailable()) {
             return null;
         }
 
@@ -189,15 +195,11 @@ public class ComponentUtils {
     
 
     public static boolean isValueBlank(String value) {
-        if (value == null) {
-            return true;
-        }
-
-        return value.trim().equals("");
+        return value == null || value.trim().isEmpty();
     }
 
     public static boolean isRTL(FacesContext context, RTLAware component) {
-        boolean globalValue = RequestContext.getCurrentInstance(context).isRTL();
+        boolean globalValue = PrimeRequestContext.getCurrentInstance(context).isRTL();
 
         return globalValue || component.isRTL();
     }
@@ -255,25 +257,25 @@ public class ComponentUtils {
     }
 
     public static Map<String, List<String>> getUIParams(UIComponent component) {
-        List<UIComponent> children = component.getChildren();
         Map<String, List<String>> params = null;
 
-        if (children != null && children.size() > 0) {
-            params = new LinkedHashMap<String, List<String>>();
+        for (int i = 0; i < component.getChildCount(); i++) {
+            UIComponent child = component.getChildren().get(i);
+            if (child.isRendered() && (child instanceof UIParameter)) {
+                UIParameter uiParam = (UIParameter) child;
 
-            for (UIComponent child : children) {
-                if (child.isRendered() && (child instanceof UIParameter)) {
-                    UIParameter uiParam = (UIParameter) child;
-
-                    if (!uiParam.isDisable()) {
-                        List<String> paramValues = params.get(uiParam.getName());
-                        if (paramValues == null) {
-                            paramValues = new ArrayList<String>();
-                            params.put(uiParam.getName(), paramValues);
-                        }
-
-                        paramValues.add(String.valueOf(uiParam.getValue()));
+                if (!uiParam.isDisable()) {
+                    if (params == null) {
+                        params = new LinkedHashMap<>();
                     }
+
+                    List<String> paramValues = params.get(uiParam.getName());
+                    if (paramValues == null) {
+                        paramValues = new ArrayList<>();
+                        params.put(uiParam.getName(), paramValues);
+                    }
+
+                    paramValues.add(String.valueOf(uiParam.getValue()));
                 }
             }
         }
@@ -294,9 +296,86 @@ public class ComponentUtils {
             return context.getExternalContext().encodeResourceURL(url);
         }
     }
+    
+    /**
+     * Generate an <code>href</code> URL considering a base URL and some other parameters.
+     * This method consider existing query string and fragment in the base URL.
+     * @param baseUrl An URL that may have query string and/or fragment.
+     * @param params A map with parameters for adding to <code>baseUrl</code>.
+     * @return An URL resulting in <code>params</code> added to <code>baseUrl</code> for using as <code>href</code> attribute.
+     */
+    public static String getHrefURL(String baseUrl, Map<String, List<String>> params) {
+        if (params == null || params.isEmpty()) {
+            return baseUrl;
+        }
+        //Fragment
+        String fragment = null;
+        int fragmentIndex = baseUrl.indexOf("#");
+        if (fragmentIndex != -1) {
+            fragment = baseUrl.substring(fragmentIndex + 1).trim();
+            baseUrl = baseUrl.substring(0, fragmentIndex);
+        }
+
+        //Query string and path
+        String queryString, path;
+        int queryStringIndex = baseUrl.indexOf("?");
+        if (queryStringIndex != -1) {
+            queryString = baseUrl.substring(queryStringIndex + 1).trim();
+            path = baseUrl.substring(0, queryStringIndex);
+        }
+        else {
+            queryString = null;
+            path = baseUrl;
+        }
+
+        boolean hasParam = false;
+        StringBuilder url = new StringBuilder(baseUrl.length() * 2);
+        url.append(path)
+                .append("?");
+        //If has previous queryString, set that first as is
+        if (!isValueBlank(queryString)) {
+            for (String pair : queryString.split("&")) {
+                String[] nameAndValue = pair.split("=");
+                // ignore malformed pair
+                if (nameAndValue.length != 2
+                        || isValueBlank(nameAndValue[0])) {
+                    continue;
+                }
+                if (hasParam) {
+                    url.append("&");
+                }
+                url.append(nameAndValue[0])
+                        .append("=")
+                        .append(nameAndValue[1]);
+                hasParam = true;
+            }
+        }
+        //Setting params Map passed
+        for (Map.Entry<String, List<String>> entry : params.entrySet()) {
+            for (String value : entry.getValue()) {
+                if (hasParam) {
+                    url.append("&");
+                }
+                try {
+                    url.append(entry.getKey())
+                            .append("=")
+                            .append(URLEncoder.encode(value, "UTF-8"));
+                }
+                catch (UnsupportedEncodingException e) {
+                    throw new RuntimeException(e);
+                }
+                hasParam = true;
+            }
+        }
+        if (!isValueBlank(fragment)) {
+            url.append("#")
+                    .append(fragment);
+        }
+        return url.toString();
+    }
 
     public static boolean isSkipIteration(VisitContext visitContext, FacesContext context) {
-        if (RequestContext.getCurrentInstance(context).getApplicationContext().getConfig().isAtLeastJSF21()) {
+        if (PrimeApplicationContext.getCurrentInstance(context).getEnvironment().isAtLeastJsf21()) {
             return visitContext.getHints().contains(VisitHint.SKIP_ITERATION);
         }
         else {
@@ -574,7 +653,7 @@ public class ComponentUtils {
      * @return true when facet and one of the first level child's is rendered.
      */
     public static boolean shouldRenderFacet(UIComponent facet) {
-        if (!facet.isRendered()) {
+        if (facet == null || !facet.isRendered()) {
             // For any future version of JSF where the f:facet gets a rendered attribute (https://github.com/javaserverfaces/mojarra/issues/4299)
             // or there is only 1 child.
             return false;
@@ -584,6 +663,7 @@ public class ComponentUtils {
         if (facet.getChildren().isEmpty()) {
             return true;
         }
+
         for (int i = 0; i < facet.getChildren().size(); i++) {
             // Stop when a child who is rendered is found.
             if (facet.getChildren().get(i).isRendered()) {
@@ -591,15 +671,5 @@ public class ComponentUtils {
             }
         }
         return false;
-    }
-
-    public static boolean equals(Object object1, Object object2) {
-        if (object1 == object2) {
-            return true;
-        }
-        if ((object1 == null) || (object2 == null)) {
-            return false;
-        }
-        return object1.equals(object2);
     }
 }

@@ -7,7 +7,6 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.event.FacesEvent;
 import javax.faces.model.DataModel;
-import org.primefaces.context.RequestContext;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.UnselectEvent;
 import org.primefaces.event.data.PageEvent;
@@ -27,12 +26,6 @@ import org.primefaces.PrimeFaces;
     public static final String GRID_CONTENT_CLASS = "ui-datagrid-content ui-widget-content ui-grid ui-grid-responsive";
     public static final String GRID_ROW_CLASS = "ui-g";
     public static final String COLUMN_CLASS = "ui-datagrid-column";
-
-    public static final String MOBILE_DATAGRID_CLASS = "ui-datagrid";
-    public static final String MOBILE_HEADER_CLASS = "ui-datagrid-header ui-bar ui-bar-b";
-    public static final String MOBILE_FOOTER_CLASS = "ui-datagrid-footer ui-bar ui-bar-b";
-    public static final String MOBILE_CONTENT_CLASS = "ui-datagrid-content ui-responsive";
-    public static final String MOBILE_EMPTY_CONTENT_CLASS = "ui-datagrid-content ui-datagrid-content-empty";
 
     private static final Map<String, Class<? extends BehaviorEvent>> BEHAVIOR_EVENT_MAPPING = Collections.unmodifiableMap(new HashMap<String, Class<? extends BehaviorEvent>>() {{
         put("page", PageEvent.class);

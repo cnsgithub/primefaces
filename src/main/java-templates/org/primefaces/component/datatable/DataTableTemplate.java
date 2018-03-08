@@ -7,7 +7,6 @@ import org.primefaces.component.subtable.SubTable;
 import org.primefaces.component.contextmenu.ContextMenu;
 import org.primefaces.component.summaryrow.SummaryRow;
 import org.primefaces.component.headerrow.HeaderRow;
-import org.primefaces.context.RequestContext;
 import org.primefaces.util.Constants;
 import java.util.List;
 import java.util.ArrayList;
@@ -43,7 +42,6 @@ import org.primefaces.event.ColumnResizeEvent;
 import org.primefaces.event.ToggleEvent;
 import org.primefaces.event.ToggleSelectEvent;
 import org.primefaces.event.ReorderEvent;
-import org.primefaces.mobile.event.SwipeEvent;
 import org.primefaces.model.Visibility;
 import org.primefaces.model.SortOrder;
 import org.primefaces.model.SelectableDataModel;
@@ -142,16 +140,6 @@ import org.primefaces.component.datatable.TableState;
     public static final String SORT_ASC = "primefaces.datatable.SORT_ASC";
     public static final String SORT_DESC = "primefaces.datatable.SORT_DESC";
     public final static String ROW_GROUP_TOGGLER = "primefaces.rowgrouptoggler.aria.ROW_GROUP_TOGGLER";
-    
-    public static final String MOBILE_CONTAINER_CLASS = "ui-datatable ui-shadow";
-    public static final String MOBILE_TABLE_CLASS = "ui-responsive ui-table table-stripe";
-    public static final String MOBILE_COLUMN_HEADER_CLASS = "ui-column-header";
-    public static final String MOBILE_ROW_CLASS = "ui-table-row";
-    public static final String MOBILE_SORT_ICON_CLASS = "ui-sortable-column-icon ui-icon-bars ui-btn-icon-notext ui-btn-right";
-    public static final String MOBILE_SORT_ICON_ASC_CLASS = "ui-sortable-column-icon ui-icon-arrow-u ui-btn-icon-notext ui-btn-right";
-    public static final String MOBILE_SORT_ICON_DESC_CLASS = "ui-sortable-column-icon ui-icon-arrow-d ui-btn-icon-notext ui-btn-right";
-    public static final String MOBILE_SORTED_COLUMN_CLASS = "ui-column-sorted";
-    public static final String MOBILE_CELL_LABEL = "ui-table-cell-label";
 
     private static final Map<String, Class<? extends BehaviorEvent>> BEHAVIOR_EVENT_MAPPING = Collections.unmodifiableMap(new HashMap<String, Class<? extends BehaviorEvent>>() {{
         put("page", PageEvent.class);
@@ -174,8 +162,6 @@ import org.primefaces.component.datatable.TableState;
         put("cellEditInit", CellEditEvent.class);
         put("cellEdit", CellEditEvent.class);
         put("rowReorder", ReorderEvent.class);
-        put("swipeleft", SwipeEvent.class);
-        put("swiperight", SwipeEvent.class);
         put("tap", SelectEvent.class);
         put("taphold", SelectEvent.class);
         put("cellEditCancel", CellEditEvent.class);
@@ -424,10 +410,6 @@ import org.primefaces.component.datatable.TableState;
                 int toIndex = Integer.parseInt(params.get(clientId + "_toIndex"));
                 
                 wrapperEvent = new ReorderEvent(this, behaviorEvent.getBehavior(), fromIndex, toIndex);
-            }
-            else if(eventName.equals("swipeleft")||eventName.equals("swiperight")) {
-                String rowkey = params.get(clientId + "_rowkey");
-                wrapperEvent = new SwipeEvent(this, behaviorEvent.getBehavior(), this.getRowData(rowkey));
             }
             else if(eventName.equals("tap")||eventName.equals("taphold")) {
                 String rowkey = params.get(clientId + "_rowkey");
@@ -1089,13 +1071,16 @@ import org.primefaces.component.datatable.TableState;
             multiSortMeta = new ArrayList<SortMeta>();
             for(int i = 0; i < multiSortStateList.size(); i++) {
                 MultiSortState multiSortState = multiSortStateList.get(i);
-                SortMeta sortMeta = new SortMeta();
-                sortMeta.setSortBy(this.findColumn(multiSortState.getSortKey()));
-                sortMeta.setSortField(multiSortState.getSortField());
-                sortMeta.setSortOrder(multiSortState.getSortOrder());
-                sortMeta.setSortFunction(multiSortState.getSortFunction());
+                UIColumn column = this.findColumn(multiSortState.getSortKey());
+                if (column != null) {
+                    SortMeta sortMeta = new SortMeta();
+                    sortMeta.setSortBy(column);
+                    sortMeta.setSortField(multiSortState.getSortField());
+                    sortMeta.setSortOrder(multiSortState.getSortOrder());
+                    sortMeta.setSortFunction(multiSortState.getSortFunction());
 
-                multiSortMeta.add(sortMeta);
+                    multiSortMeta.add(sortMeta);
+                }
             }
         }
         else {

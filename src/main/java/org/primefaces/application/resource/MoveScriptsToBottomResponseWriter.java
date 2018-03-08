@@ -30,6 +30,7 @@ public class MoveScriptsToBottomResponseWriter extends ResponseWriterWrapper {
     private StringBuilder include;
     private StringBuilder inline;
 
+    @SuppressWarnings("deprecation") // the default constructor is deprecated in JSF 2.3
     public MoveScriptsToBottomResponseWriter(ResponseWriter wrapped, MoveScriptsToBottomState state) {
         this.wrapped = wrapped;
         this.state = state;
@@ -172,8 +173,8 @@ public class MoveScriptsToBottomResponseWriter extends ResponseWriterWrapper {
     protected String mergeAndMinimizeInlineScripts() {
             
         StringBuilder script = new StringBuilder(state.getInlines().size() * 100);
-        for (String current : state.getInlines()) {
-            script.append(current);
+        for (int i = 0; i < state.getInlines().size(); i++) {
+            script.append(state.getInlines().get(i));
             script.append(";\n");
         }
         

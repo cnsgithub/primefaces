@@ -22,7 +22,6 @@ import javax.faces.component.visit.VisitContext;
 import javax.faces.component.visit.VisitHint;
 import javax.faces.component.visit.VisitResult;
 import javax.faces.event.AbortProcessingException;
-import org.primefaces.context.RequestContext;
 import javax.faces.event.BehaviorEvent;
 import org.primefaces.PrimeFaces;
 
@@ -34,16 +33,6 @@ import org.primefaces.PrimeFaces;
     public final static String ACTIVE_TAB_HEADER_ICON_CLASS = "ui-icon ui-icon-triangle-1-s";
     public final static String ACTIVE_TAB_CONTENT_CLASS = "ui-accordion-content ui-helper-reset ui-widget-content";
     public final static String INACTIVE_TAB_CONTENT_CLASS = "ui-accordion-content ui-helper-reset ui-widget-content ui-helper-hidden";
-
-    public final static String MOBILE_CONTAINER_CLASS = "ui-accordion ui-collapsible-set ui-corner-all ui-hidden-container";
-    public final static String MOBILE_INACTIVE_TAB_CONTAINER_CLASS = "ui-collapsible ui-collapsible-inset ui-corner-all ui-collapsible-themed-content ui-collapsible-collapsed";
-    public final static String MOBILE_ACTIVE_TAB_CONTAINER_CLASS = "ui-collapsible ui-collapsible-inset ui-corner-all ui-collapsible-themed-content";
-    public final static String MOBILE_ACTIVE_TAB_HEADER_CLASS = "ui-collapsible-heading";
-    public final static String MOBILE_INACTIVE_TAB_HEADER_CLASS = "ui-collapsible-heading ui-collapsible-heading-collapsed";
-    public final static String MOBILE_ACTIVE_TAB_CONTENT_CLASS = "ui-collapsible-content ui-body-inherit";
-    public final static String MOBILE_INACTIVE_TAB_CONTENT_CLASS = "ui-collapsible-content ui-body-inherit ui-collapsible-content-collapsed";
-    public final static String MOBILE_ACTIVE_ICON_CLASS = "ui-collapsible-heading-toggle ui-btn ui-btn-icon-left ui-icon-minus";
-    public final static String MOBILE_INACTIVE_ICON_CLASS = "ui-collapsible-heading-toggle ui-btn ui-btn-icon-left ui-icon-plus";   
 
     private final static String DEFAULT_EVENT = "tabChange";
 

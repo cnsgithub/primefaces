@@ -12,12 +12,6 @@ PrimeFaces.widget.SelectOneMenu = PrimeFaces.widget.DeferredWidget.extend({
         this.label = this.jq.find('.ui-selectonemenu-label');
         this.menuIcon = this.jq.children('.ui-selectonemenu-trigger');
 
-        this.panelParent = this.cfg.appendTo
-            ? PrimeFaces.expressions.SearchExpressionFacade.resolveComponentsAsSelector(this.cfg.appendTo) : $(document.body);
-        if(!this.panelParent.is(this.jq)) {
-            this.panelParent.children(this.panelId).remove();
-        }
-
         this.panel = $(this.panelId);
         this.disabled = this.jq.hasClass('ui-state-disabled');
         this.itemsWrapper = this.panel.children('.ui-selectonemenu-items-wrapper');
@@ -48,7 +42,8 @@ PrimeFaces.widget.SelectOneMenu = PrimeFaces.widget.DeferredWidget.extend({
         if(!this.disabled) {
             this.bindEvents();
             this.bindConstantEvents();
-            this.appendPanel();
+
+            PrimeFaces.utils.registerDynamicOverlay(this, this.panel, this.id + '_panel');
         }
 
         // see #7602
@@ -122,16 +117,11 @@ PrimeFaces.widget.SelectOneMenu = PrimeFaces.widget.DeferredWidget.extend({
         }
     },
 
+    //@override
     refresh: function(cfg) {
         this.panelWidthAdjusted = false;
 
         this._super(cfg);
-    },
-
-    appendPanel: function() {
-        if(!this.panelParent.is(this.jq)) {
-            this.panel.appendTo(this.panelParent);
-        }
     },
 
     alignPanelWidth: function() {
@@ -238,53 +228,21 @@ PrimeFaces.widget.SelectOneMenu = PrimeFaces.widget.DeferredWidget.extend({
     },
 
     bindConstantEvents: function() {
-        var $this = this,
-        hideNS = 'mousedown.' + this.id;
+        var $this = this;
 
-        //hide overlay when outside is clicked
-        $(document).off(hideNS).on(hideNS, function (e) {
-            if($this.panel.is(":hidden")) {
-                return;
-            }
-
-            var offset = $this.panel.offset();
-            if (e.target === $this.label.get(0) ||
-                e.target === $this.menuIcon.get(0) ||
-                e.target === $this.menuIcon.children().get(0)) {
-                return;
-            }
-
-            if (e.pageX < offset.left ||
-                e.pageX > offset.left + $this.panel.width() ||
-                e.pageY < offset.top ||
-                e.pageY > offset.top + $this.panel.height()) {
-
+        PrimeFaces.utils.registerHideOverlayHandler(this, 'mousedown.' + this.id, $this.panel,
+            function() { return  $this.label.add($this.menuIcon); },
+            function(e) {
                 $this.hide();
-
                 setTimeout(function() {
                     $this.revert();
                     $this.changeAriaValue($this.getActiveItem());
                 }, 2);
-            }
+            });
+
+        PrimeFaces.utils.registerResizeHandler(this, 'resize.' + this.id, $this.panel, function() {
+            $this.alignPanel();
         });
-
-        this.resizeNS = 'resize.' + this.id;
-        this.unbindResize();
-        this.bindResize();
-    },
-
-    bindResize: function() {
-        var _self = this;
-
-        $(window).bind(this.resizeNS, function(e) {
-            if(_self.panel.is(':visible')) {
-                _self.alignPanel();
-            }
-        });
-    },
-
-    unbindResize: function() {
-        $(window).unbind(this.resizeNS);
     },
 
     unbindEvents: function() {

@@ -27,8 +27,8 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UINamingContainer;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
+import org.primefaces.PrimeFaces;
 import org.primefaces.component.api.UITree;
-import org.primefaces.context.RequestContext;
 
 import org.primefaces.model.TreeNode;
 import org.primefaces.model.filter.FilterConstraint;
@@ -120,7 +120,7 @@ public class TreeRenderer extends CoreRenderer {
                 }
             }
 
-            RequestContext.getCurrentInstance(context).addCallbackParam("descendantRowKeys", sb.toString());
+            PrimeFaces.current().ajax().addCallbackParam("descendantRowKeys", sb.toString());
             sb.setLength(0);
             descendantRowKeys = null;
         }
@@ -265,7 +265,7 @@ public class TreeRenderer extends CoreRenderer {
         String widget = tree.getOrientation().equals("vertical") ? "VerticalTree" : "HorizontalTree";
 
         WidgetBuilder wb = getWidgetBuilder(context);
-        wb.initWithDomReady(widget, tree.resolveWidgetVar(), clientId);
+        wb.init(widget, tree.resolveWidgetVar(), clientId);
 
         wb.attr("dynamic", dynamic)
                 .attr("highlight", tree.isHighlight(), true)
@@ -481,12 +481,9 @@ public class TreeRenderer extends CoreRenderer {
         if (nodeOrder != NodeOrder.NONE) {
             encodeConnector(context, tree, nodeOrder);
         }
-        
-        nodeClass = uiTreeNode.getStyleClass() == null ? nodeClass : nodeClass + " " + uiTreeNode.getStyleClass();
 
         //node
         writer.startElement("td", null);
-        writer.writeAttribute("class", nodeClass, null);
         writer.writeAttribute("data-nodetype", uiTreeNode.getType(), null);
 
         if (rowKey != null) {
@@ -498,7 +495,10 @@ public class TreeRenderer extends CoreRenderer {
             writer.writeAttribute("data-rowkey", "root", null);
         }
 
-        String nodeContentClass = node.isSelectable() ? Tree.SELECTABLE_NODE_CONTENT_CLASS_H : Tree.NODE_CONTENT_CLASS_H;
+        nodeClass = uiTreeNode.getStyleClass() == null ? nodeClass : nodeClass + " " + uiTreeNode.getStyleClass();
+        writer.writeAttribute("class", nodeClass, null);
+        
+        String nodeContentClass = (tree.getSelectionMode() != null && node.isSelectable()) ? Tree.SELECTABLE_NODE_CONTENT_CLASS_H : Tree.NODE_CONTENT_CLASS_H;
         if (selected) {
             nodeContentClass += " ui-state-highlight";
         }
@@ -647,7 +647,7 @@ public class TreeRenderer extends CoreRenderer {
         tree.setRowKey(rowKey);
         boolean isLeaf = node.isLeaf();
         boolean expanded = node.isExpanded();
-        boolean selectable = node.isSelectable();
+        boolean selectable = tree.getSelectionMode() != null && node.isSelectable();
         String toggleIcon = expanded
                 ? Tree.EXPANDED_ICON_CLASS_V
                 : (tree.isRTLRendering() ? Tree.COLLAPSED_ICON_RTL_CLASS_V : Tree.COLLAPSED_ICON_CLASS_V);

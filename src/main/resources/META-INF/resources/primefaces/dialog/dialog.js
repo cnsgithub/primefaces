@@ -1,7 +1,7 @@
 /**
  * PrimeFaces Dialog Widget
  */
-PrimeFaces.widget.Dialog = PrimeFaces.widget.BaseWidget.extend({
+PrimeFaces.widget.Dialog = PrimeFaces.widget.DynamicOverlayWidget.extend({
 
     init: function(cfg) {
         this._super(cfg);
@@ -13,8 +13,6 @@ PrimeFaces.widget.Dialog = PrimeFaces.widget.BaseWidget.extend({
         this.closeIcon = this.titlebar.children('.ui-dialog-titlebar-close');
         this.minimizeIcon = this.titlebar.children('.ui-dialog-titlebar-minimize');
         this.maximizeIcon = this.titlebar.children('.ui-dialog-titlebar-maximize');
-        this.blockEvents = 'focus.' + this.id + ' mousedown.' + this.id + ' mouseup.' + this.id;
-        this.resizeNS = 'resize.' + this.id;
         this.cfg.absolutePositioned = this.jq.hasClass('ui-dialog-absolute');
         this.jqEl = this.jq[0];
 
@@ -43,27 +41,9 @@ PrimeFaces.widget.Dialog = PrimeFaces.widget.BaseWidget.extend({
             this.setupResizable();
         }
 
-        if(this.cfg.appendTo) {
-            this.parent = this.jq.parent();
-            this.targetParent = PrimeFaces.expressions.SearchExpressionFacade.resolveComponentsAsSelector(this.cfg.appendTo);
-
-            // skip when the parent currently is already the same
-            // this likely happens when the dialog is updated directly instead of a container
-            // as our ajax update mechanism just updates by id
-            if (!this.parent.is(this.targetParent)) {
-                this.jq.appendTo(this.targetParent);
-            }
-        }
-
         //docking zone
         if($(document.body).children('.ui-dialog-docking-zone').length === 0) {
             $(document.body).append('<div class="ui-dialog-docking-zone"></div>');
-        }
-
-        //remove related modality if there is one
-        var modal = $(this.jqId + '_modal');
-        if(modal.length > 0) {
-            modal.remove();
         }
 
         //aria
@@ -85,13 +65,6 @@ PrimeFaces.widget.Dialog = PrimeFaces.widget.BaseWidget.extend({
 
         $(document).off('keydown.dialog_' + cfg.id);
 
-        if(cfg.appendTo) {
-            var jqs = $('[id=' + cfg.id.replace(/:/g,"\\:") + ']');
-            if(jqs.length > 1) {
-            	PrimeFaces.expressions.SearchExpressionFacade.resolveComponentsAsSelector(cfg.appendTo).children(this.jqId).remove();
-            }
-        }
-
         if(this.minimized) {
             var dockingZone = $(document.body).children('.ui-dialog-docking-zone');
             if(dockingZone.length && dockingZone.children(this.jqId).length) {
@@ -104,15 +77,6 @@ PrimeFaces.widget.Dialog = PrimeFaces.widget.BaseWidget.extend({
         this.maximized = false;
 
         this.init(cfg);
-    },
-
-    //@Override
-    destroy: function() {
-        this._super();
-
-        if (this.cfg.responsive) {
-            this.unbindResizeListener();
-        }
     },
 
     initSize: function() {
@@ -141,67 +105,9 @@ PrimeFaces.widget.Dialog = PrimeFaces.widget.BaseWidget.extend({
         this.content.css('max-height', maxHeight + 'px');
     },
 
-    enableModality: function() {
-        var $this = this,
-        doc = $(document);
-
-        $(document.body).append('<div id="' + this.id + '_modal" class="ui-widget-overlay ui-dialog-mask"></div>')
-                        .children(this.jqId + '_modal').css('z-index' , this.jq.css('z-index') - 1);
-
-        //Disable tabbing out of modal dialog and stop events from targets outside of dialog
-        doc.on('keydown.' + this.id,
-                function(event) {
-                    var target = $(event.target);
-
-                    if(event.which === $.ui.keyCode.TAB) {
-                        var tabbables = $this.jq.find(':tabbable').add($this.footer.find(':tabbable'));
-                        if(tabbables.length) {
-                            var first = tabbables.filter(':first'),
-                            last = tabbables.filter(':last'),
-                            focusingRadioItem = null;
-
-                            if(first.is(':radio')) {
-                                focusingRadioItem = tabbables.filter('[name="' + first.attr('name') + '"]').filter(':checked');
-                                if(focusingRadioItem.length > 0) {
-                                    first = focusingRadioItem;
-                                }
-                            }
-
-                            if(last.is(':radio')) {
-                                focusingRadioItem = tabbables.filter('[name="' + last.attr('name') + '"]').filter(':checked');
-                                if(focusingRadioItem.length > 0) {
-                                    last = focusingRadioItem;
-                                }
-                            }
-
-                            if(target.is(document.body)) {
-                                first.focus(1);
-                                event.preventDefault();
-                            }
-                            else if(event.target === last[0] && !event.shiftKey) {
-                                first.focus(1);
-                                event.preventDefault();
-                            }
-                            else if (event.target === first[0] && event.shiftKey) {
-                                last.focus(1);
-                                event.preventDefault();
-                            }
-                        }
-                    }
-                    else if(!target.is(document.body) && (target.zIndex() < $this.jq.zIndex())) {
-                        event.preventDefault();
-                    }
-                })
-                .on(this.blockEvents, function(event) {
-                    if ($(event.target).zIndex() < $this.jq.zIndex()) {
-                        event.preventDefault();
-                    }
-                });
-    },
-
-    disableModality: function(){
-        $(document.body).children(this.jqId + '_modal').remove();
-        $(document).off(this.blockEvents).off('keydown.' + this.id);
+    //@override
+    getModalTabbables: function(){
+        return this.jq.find(':tabbable').add(this.footer.find(':tabbable'));
     },
 
     show: function() {
@@ -635,7 +541,8 @@ PrimeFaces.widget.Dialog = PrimeFaces.widget.BaseWidget.extend({
 
     bindResizeListener: function() {
         var $this = this;
-        $(window).on(this.resizeNS, function() {
+
+        PrimeFaces.utils.registerResizeHandler(this, 'resize.' + this.id, null, function() {
             if ($this.cfg.fitViewport) {
                 $this.fitViewport();
             }
@@ -649,10 +556,6 @@ PrimeFaces.widget.Dialog = PrimeFaces.widget.BaseWidget.extend({
                 $this.positionInitialized = false;
             }
         });
-    },
-
-    unbindResizeListener: function() {
-        $(window).off(this.resizeNS);
     },
 
     fireBehaviorEvent: function(event) {
