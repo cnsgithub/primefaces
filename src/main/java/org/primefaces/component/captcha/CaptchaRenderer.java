@@ -66,6 +66,12 @@ public class CaptchaRenderer extends CoreRenderer {
         writer.startElement("div", null);
         writer.writeAttribute("id", clientId, "id");
 
+        if (captcha.getSize() != null && "invisible".equals(captcha.getSize())) {
+            writer.writeAttribute("class", "g-recaptcha", null);
+            writer.writeAttribute("data-sitekey", publicKey, null);
+            writer.writeAttribute("data-size", "invisible", null);
+        }
+
         renderDynamicPassThruAttributes(context, captcha);
 
         writer.endElement("div");
@@ -74,7 +80,7 @@ public class CaptchaRenderer extends CoreRenderer {
     protected void encodeScript(FacesContext context, Captcha captcha, String publicKey) throws IOException {
         String clientId = captcha.getClientId(context);
         WidgetBuilder wb = getWidgetBuilder(context);
-        wb.initWithDomReady("Captcha", captcha.resolveWidgetVar(), clientId);
+        wb.init("Captcha", captcha.resolveWidgetVar(), clientId);
 
         wb.attr("sitekey", publicKey)
                 .attr("theme", captcha.getTheme(), "light")
