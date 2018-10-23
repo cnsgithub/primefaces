@@ -16,20 +16,23 @@
 package org.primefaces.component.paginator;
 
 import java.io.IOException;
+
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
+
 import org.primefaces.component.api.Pageable;
 import org.primefaces.component.api.UIData;
 
 public class JumpToPageDropdownRenderer implements PaginatorElementRenderer {
 
+    @Override
     public void render(FacesContext context, Pageable pageable) throws IOException {
         ResponseWriter writer = context.getResponseWriter();
         int currentPage = pageable.getPage();
         int pageCount = pageable.getPageCount();
 
         writer.startElement("select", null);
-        writer.writeAttribute("class", UIData.PAGINATOR_JTP_CLASS, null);
+        writer.writeAttribute("class", UIData.PAGINATOR_JTP_SELECT_CLASS, null);
         writer.writeAttribute("value", pageable.getPage(), null);
 
         for (int i = 0; i < pageCount; i++) {

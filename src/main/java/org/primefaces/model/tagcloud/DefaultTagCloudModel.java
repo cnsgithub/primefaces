@@ -24,13 +24,14 @@ public class DefaultTagCloudModel implements TagCloudModel {
     private List<TagCloudItem> tags;
 
     public DefaultTagCloudModel() {
-        tags = new ArrayList<TagCloudItem>();
+        tags = new ArrayList<>();
     }
 
     public DefaultTagCloudModel(Collection<TagCloudItem> collection) {
-        tags = new ArrayList<TagCloudItem>(collection);
+        tags = new ArrayList<>(collection);
     }
 
+    @Override
     public List<TagCloudItem> getTags() {
         return tags;
     }
@@ -39,14 +40,17 @@ public class DefaultTagCloudModel implements TagCloudModel {
         this.tags = tags;
     }
 
+    @Override
     public void addTag(TagCloudItem item) {
         tags.add(item);
     }
 
+    @Override
     public void removeTag(TagCloudItem item) {
         tags.remove(item);
     }
 
+    @Override
     public void clear() {
         tags.clear();
     }

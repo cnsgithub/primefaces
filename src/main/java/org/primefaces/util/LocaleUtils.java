@@ -21,11 +21,7 @@ import javax.faces.context.FacesContext;
 
 public class LocaleUtils {
 
-    /**
-     * Prevent instantiation.
-     */
     private LocaleUtils() {
-        // prevent instantiation
     }
 
     /**
@@ -81,7 +77,7 @@ public class LocaleUtils {
      */
     public static Locale resolveLocale(Object locale, String clientId) {
         Locale result = null;
-        
+
         if (locale != null) {
             if (locale instanceof String) {
                 result = toLocale((String) locale);

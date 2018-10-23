@@ -15,22 +15,20 @@
  */
 package org.primefaces.util;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import org.primefaces.component.api.ClientBehaviorRenderingMode;
+import org.primefaces.config.PrimeConfiguration;
+import org.primefaces.context.PrimeApplicationContext;
+import org.primefaces.expression.SearchExpressionFacade;
+import org.primefaces.expression.SearchExpressionHint;
 
 import javax.faces.application.ProjectStage;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIParameter;
 import javax.faces.context.FacesContext;
 import javax.faces.view.facelets.FaceletException;
-
-import org.primefaces.component.api.ClientBehaviorRenderingMode;
-
-import org.primefaces.config.PrimeConfiguration;
-import org.primefaces.context.PrimeApplicationContext;
-import org.primefaces.expression.SearchExpressionFacade;
-import org.primefaces.expression.SearchExpressionHint;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Helper to generate javascript code of an ajax call
@@ -84,7 +82,7 @@ public class AjaxRequestBuilder {
     }
 
     private AjaxRequestBuilder addExpressions(UIComponent component, String expressions, String key, int options) {
-        if (!ComponentUtils.isValueBlank(expressions)) {
+        if (!LangUtils.isValueBlank(expressions)) {
             String resolvedExpressions = SearchExpressionFacade.resolveClientIds(context, component, expressions, options);
             buffer.append(",").append(key).append(":\"").append(resolvedExpressions).append("\"");
         }
@@ -123,7 +121,7 @@ public class AjaxRequestBuilder {
     }
 
     public AjaxRequestBuilder delay(String delay) {
-        if (!ComponentUtils.isValueBlank(delay) && !delay.equals("none")) {
+        if (!LangUtils.isValueBlank(delay) && !delay.equals("none")) {
             buffer.append(",d:").append(delay);
 
             if (context.isProjectStage(ProjectStage.Development)) {
@@ -238,8 +236,8 @@ public class AjaxRequestBuilder {
                     buffer.append(",");
                 }
 
-                buffer.append("{name:").append("\"").append(ComponentUtils.escapeText(parameter.getName())).append("\",value:\"")
-                    .append(ComponentUtils.escapeText(paramValue.toString())).append("\"}");
+                buffer.append("{name:").append("\"").append(EscapeUtils.forJavaScript(parameter.getName())).append("\",value:\"")
+                    .append(EscapeUtils.forJavaScript(paramValue.toString())).append("\"}");
             }
         }
 
@@ -263,8 +261,8 @@ public class AjaxRequestBuilder {
                     if (paramValue == null) {
                         paramValue = "";
                     }
-                    buffer.append("{name:").append("\"").append(ComponentUtils.escapeText(name)).append("\",value:\"")
-                        .append(ComponentUtils.escapeText(paramValue)).append("\"}");
+                    buffer.append("{name:").append("\"").append(EscapeUtils.forJavaScript(name)).append("\",value:\"")
+                        .append(EscapeUtils.forJavaScript(paramValue)).append("\"}");
 
                     if (i < (size - 1)) {
                         buffer.append(",");

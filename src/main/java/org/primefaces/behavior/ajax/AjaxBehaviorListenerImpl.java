@@ -29,7 +29,7 @@ import javax.faces.event.AjaxBehaviorListener;
 
 public class AjaxBehaviorListenerImpl implements AjaxBehaviorListener, Serializable {
 
-    private static final Logger LOG = Logger.getLogger(AjaxBehaviorListenerImpl.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(AjaxBehaviorListenerImpl.class.getName());
 
     private MethodExpression listener;
     private MethodExpression listenerWithArg;
@@ -49,12 +49,13 @@ public class AjaxBehaviorListenerImpl implements AjaxBehaviorListener, Serializa
         this.listenerWithCustomArg = listenerWithCustomArg;
     }
 
+    @Override
     public void processAjaxBehavior(AjaxBehaviorEvent event) throws AbortProcessingException {
         FacesContext context = FacesContext.getCurrentInstance();
         final ELContext elContext = context.getELContext();
 
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Try to invoke listener: " + listener.getExpressionString());
+        if (LOGGER.isLoggable(Level.FINE)) {
+            LOGGER.fine("Try to invoke listener: " + listener.getExpressionString());
         }
 
         try {
@@ -72,8 +73,8 @@ public class AjaxBehaviorListenerImpl implements AjaxBehaviorListener, Serializa
     }
 
     private void processArgListener(FacesContext context, ELContext elContext, AjaxBehaviorEvent event) throws AbortProcessingException {
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Try to invoke listenerWithArg: " + listenerWithArg.getExpressionString());
+        if (LOGGER.isLoggable(Level.FINE)) {
+            LOGGER.fine("Try to invoke listenerWithArg: " + listenerWithArg.getExpressionString());
         }
 
         try {
@@ -94,15 +95,15 @@ public class AjaxBehaviorListenerImpl implements AjaxBehaviorListener, Serializa
             MethodExpression argListener = context.getApplication().getExpressionFactory().
                     createMethodExpression(elContext, listener.getExpressionString(), Void.class, new Class[]{event.getClass()});
 
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Try to invoke customListener: " + argListener.getExpressionString());
+            if (LOGGER.isLoggable(Level.FINE)) {
+                LOGGER.fine("Try to invoke customListener: " + argListener.getExpressionString());
             }
 
             argListener.invoke(elContext, new Object[]{event});
         }
         else {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Try to invoke customListener: " + listenerWithCustomArg.getExpressionString());
+            if (LOGGER.isLoggable(Level.FINE)) {
+                LOGGER.fine("Try to invoke customListener: " + listenerWithCustomArg.getExpressionString());
             }
 
             listenerWithCustomArg.invoke(elContext, new Object[]{event});

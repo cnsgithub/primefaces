@@ -27,25 +27,19 @@ public abstract class SelectManyRenderer extends SelectRenderer {
 
     @Override
     public void decode(FacesContext context, UIComponent component) {
-        if (!shouldDecode(component)) {
+        UISelectMany selectMany = (UISelectMany) component;
+        if (!shouldDecode(selectMany)) {
             return;
         }
-
-        UISelectMany selectMany = (UISelectMany) component;
-
-        decodeBehaviors(context, selectMany);
 
         String submitParam = getSubmitParam(context, selectMany);
         Map<String, String[]> params = context.getExternalContext().getRequestParameterValuesMap();
 
-        if (params.containsKey(submitParam)) {
-            String[] submittedValues = params.get(submitParam);
-            checkDisabledSelectItemSubmitted(context, selectMany, (Object[]) getValues(selectMany), submittedValues);
-            selectMany.setSubmittedValue(submittedValues);
-        }
-        else {
-            selectMany.setSubmittedValue(new String[0]);
-        }
+        String[] submittedValues = params.containsKey(submitParam) ? params.get(submitParam) : new String[0];
+        submittedValues = validateSubmittedValues(context, selectMany, (Object[]) getValues(selectMany), submittedValues);
+        selectMany.setSubmittedValue(submittedValues);
+
+        decodeBehaviors(context, selectMany);
     }
 
     protected Object getValues(UIComponent component) {

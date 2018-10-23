@@ -35,7 +35,7 @@ public abstract class EndPoint implements Serializable {
     private String scope;
 
     public EndPoint() {
-        overlays = new ArrayList<Overlay>();
+        overlays = new ArrayList<>();
     }
 
     public EndPoint(EndPointAnchor anchor) {
@@ -46,7 +46,7 @@ public abstract class EndPoint implements Serializable {
     public abstract String getType();
 
     public abstract String toJS(StringBuilder sb);
-    
+
     public String getId() {
         return id;
     }

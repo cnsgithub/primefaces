@@ -25,11 +25,11 @@ import org.primefaces.component.treetable.TreeTable;
 
 public class DynamicColumnsListener implements SystemEventListener {
 
+    @Override
     public void processEvent(SystemEvent event) throws AbortProcessingException {
         Columns columns = (Columns) event.getSource();
         UIComponent parent = columns.getParent();
 
-        //todo: consider an interface
         if (parent instanceof DataTable) {
             ((DataTable) parent).setDynamicColumns(columns);
         }
@@ -38,6 +38,7 @@ public class DynamicColumnsListener implements SystemEventListener {
         }
     }
 
+    @Override
     public boolean isListenerForSource(Object source) {
         return true;
     }

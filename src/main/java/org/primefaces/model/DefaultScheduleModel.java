@@ -26,27 +26,31 @@ public class DefaultScheduleModel implements ScheduleModel, Serializable {
     private boolean eventLimit = false;
 
     public DefaultScheduleModel() {
-        events = new ArrayList<ScheduleEvent>();
+        events = new ArrayList<>();
     }
 
     public DefaultScheduleModel(List<ScheduleEvent> events) {
         this.events = events;
     }
 
+    @Override
     public void addEvent(ScheduleEvent event) {
         event.setId(UUID.randomUUID().toString());
 
         events.add(event);
     }
 
+    @Override
     public boolean deleteEvent(ScheduleEvent event) {
         return events.remove(event);
     }
 
+    @Override
     public List<ScheduleEvent> getEvents() {
         return events;
     }
 
+    @Override
     public ScheduleEvent getEvent(String id) {
         for (ScheduleEvent event : events) {
             if (event.getId().equals(id)) {
@@ -57,6 +61,7 @@ public class DefaultScheduleModel implements ScheduleModel, Serializable {
         return null;
     }
 
+    @Override
     public void updateEvent(ScheduleEvent event) {
         int index = -1;
 
@@ -73,14 +78,17 @@ public class DefaultScheduleModel implements ScheduleModel, Serializable {
         }
     }
 
+    @Override
     public int getEventCount() {
         return events.size();
     }
 
+    @Override
     public void clear() {
-        events = new ArrayList<ScheduleEvent>();
+        events = new ArrayList<>();
     }
 
+    @Override
     public boolean isEventLimit() {
         return eventLimit;
     }

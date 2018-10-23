@@ -24,25 +24,30 @@ public class DefaultDashboardModel implements DashboardModel, Serializable {
     private List<DashboardColumn> columns;
 
     public DefaultDashboardModel() {
-        columns = new ArrayList<DashboardColumn>();
+        columns = new ArrayList<>();
     }
 
+    @Override
     public List<DashboardColumn> getColumns() {
         return columns;
     }
 
+    @Override
     public void addColumn(DashboardColumn column) {
         columns.add(column);
     }
 
+    @Override
     public int getColumnCount() {
         return columns.size();
     }
 
+    @Override
     public DashboardColumn getColumn(int index) {
         return columns.get(index);
     }
 
+    @Override
     public void transferWidget(DashboardColumn fromColumn, DashboardColumn toColumn, String widgetId, int index) {
         fromColumn.removeWidget(widgetId);
         toColumn.addWidget(index, widgetId);

@@ -52,24 +52,6 @@ if (!PrimeFaces.ajax) {
         RESOURCE : "javax.faces.Resource",
 
         Utils: {
-
-            loadStylesheets: function(stylesheets) {
-                for (var i = 0; i < stylesheets.length; i++) {
-                    $('head').append('<link type="text/css" rel="stylesheet" href="' + stylesheets[i] + '" />');
-                }
-            },
-
-            loadScripts: function(scripts) {
-                var loadNextScript = function() {
-                    var script = scripts.shift();
-                    if (script) {
-                        PrimeFaces.getScript(script, loadNextScript);
-                    }
-                };
-
-                loadNextScript();
-            },
-
             getContent: function(node) {
                 var content = '';
 
@@ -477,7 +459,7 @@ if (!PrimeFaces.ajax) {
                                 componentPostParams = jqProcess.find(partialSubmitFilter).serializeArray();
                             }
 
-                            if (cfg.ext.partialSubmitParameterFilter) {
+                            if (cfg.ext && cfg.ext.partialSubmitParameterFilter) {
                                 var filteredParams = cfg.ext.partialSubmitParameterFilter.call(this, componentPostParams);
                                 $.merge(postParams, filteredParams);
                             }
@@ -694,6 +676,10 @@ if (!PrimeFaces.ajax) {
         Response: {
 
             handle: function(xml, status, xhr, updateHandler) {
+                if (xml === undefined || xml === null) {
+                    return;
+                }
+
                 var partialResponseNode = xml.getElementsByTagName("partial-response")[0];
 
                 for (var i = 0; i < partialResponseNode.childNodes.length; i++) {
@@ -794,7 +780,7 @@ if (!PrimeFaces.ajax) {
 
                     var widget = PF(widgetVar);
                     if (widget) {
-                        if (widget.isDetached()) {
+                        if (widget.isDetached() === true) {
                             PrimeFaces.widgets[widgetVar] = null;
                             widget.destroy();
 

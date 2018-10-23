@@ -40,7 +40,7 @@ public class CarouselRenderer extends CoreRenderer {
         }
 
         if (params.containsKey(collapsedParam)) {
-            carousel.setCollapsed(Boolean.valueOf(params.get(collapsedParam)));
+            carousel.setCollapsed(Boolean.parseBoolean(params.get(collapsedParam)));
         }
     }
 
@@ -185,7 +185,7 @@ public class CarouselRenderer extends CoreRenderer {
             facet.encodeAll(context);
         }
         else if (text != null) {
-            writer.write(text);
+            writer.writeText(text, "headerText");
         }
 
         writer.endElement("div");
@@ -275,7 +275,7 @@ public class CarouselRenderer extends CoreRenderer {
             facet.encodeAll(context);
         }
         else if (text != null) {
-            writer.write(text);
+            writer.writeText(text, "footerText");
         }
 
         writer.endElement("div");

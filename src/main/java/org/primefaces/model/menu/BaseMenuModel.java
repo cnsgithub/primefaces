@@ -24,22 +24,25 @@ import java.util.List;
  */
 public class BaseMenuModel implements MenuModel, Serializable {
 
-    public final static String ID_SEPARATOR = "_";
+    public static final String ID_SEPARATOR = "_";
 
     private List<MenuElement> elements;
 
     public BaseMenuModel() {
-        elements = new ArrayList<MenuElement>();
+        elements = new ArrayList<>();
     }
 
+    @Override
     public void addElement(MenuElement element) {
         elements.add(element);
     }
 
+    @Override
     public List<MenuElement> getElements() {
         return elements;
     }
 
+    @Override
     public void generateUniqueIds() {
         this.generateUniqueIds(getElements(), null);
     }

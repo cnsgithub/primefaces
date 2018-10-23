@@ -17,9 +17,11 @@ package org.primefaces.component.columntoggler;
 
 import java.io.IOException;
 import java.util.Map;
+
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
+
 import org.primefaces.component.datatable.DataTable;
 import org.primefaces.component.datatable.TableState;
 import org.primefaces.expression.SearchExpressionFacade;
@@ -33,7 +35,7 @@ public class ColumnTogglerRenderer extends CoreRenderer {
         ColumnToggler columnToggler = (ColumnToggler) component;
         UIComponent datasource = columnToggler.getDataSourceComponent();
 
-        if (datasource != null && datasource instanceof DataTable) {
+        if (datasource instanceof DataTable) {
             DataTable table = ((DataTable) datasource);
             boolean isMultiViewState = table.isMultiViewState();
             if (isMultiViewState) {

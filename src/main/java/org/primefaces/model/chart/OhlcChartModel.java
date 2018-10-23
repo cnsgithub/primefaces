@@ -25,7 +25,7 @@ public class OhlcChartModel extends CartesianChartModel {
     private boolean candleStick;
 
     public OhlcChartModel() {
-        data = new ArrayList<OhlcChartSeries>();
+        data = new ArrayList<>();
     }
 
     public OhlcChartModel(List<OhlcChartSeries> data) {
@@ -49,6 +49,7 @@ public class OhlcChartModel extends CartesianChartModel {
         this.data.add(ohlc);
     }
 
+    @Override
     public void clear() {
         this.data.clear();
     }

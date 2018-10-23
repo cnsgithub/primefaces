@@ -15,8 +15,9 @@
  */
 package org.primefaces.model.diagram.overlay;
 
+import org.primefaces.util.EscapeUtils;
+
 import java.io.Serializable;
-import org.primefaces.util.ComponentUtils;
 
 public class LabelOverlay implements Overlay, Serializable {
 
@@ -63,16 +64,18 @@ public class LabelOverlay implements Overlay, Serializable {
         this.location = location;
     }
 
+    @Override
     public String getType() {
         return "Label";
     }
 
+    @Override
     public String toJS(StringBuilder sb) {
-        sb.append("['Label',{label:\"").append(ComponentUtils.escapeText(label)).append("\"");
+        sb.append("['Label',{label:\"").append(EscapeUtils.forJavaScript(label)).append("\"");
 
         if (styleClass != null) sb.append(",cssClass:'").append(styleClass).append("'");
         if (location != 0.5) sb.append(",location:").append(location);
-        
+
         sb.append("}]");
 
         return sb.toString();
